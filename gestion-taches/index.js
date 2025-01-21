@@ -1,18 +1,29 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const tasksRoutes = require('./routes/tasks');
+const connectDB = require('./db');
+require('dotenv').config();
 
-const app = express();
-const PORT = 3000;
+const startServer = async () => {
+    const app = express();
 
-// Middleware
-app.use(bodyParser.json());
+    // Middleware
+    app.use(bodyParser.json());
 
-// Routes
-app.use('/tasks', tasksRoutes);
+    // Connexion à MongoDB
+    await connectDB();
 
-// Serveur
-app.listen(PORT, () => {
-    console.log(`Serveur API en cours d'exécution sur http://localhost:${PORT}`);
+    // Routes
+    const taskRoutes = require('./routes/tasks');
+    app.use('/tasks', taskRoutes);
+
+    // Lancement du serveur
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => console.log(`Serveur API en cours d'exécution sur http://localhost:${PORT}`));
+};
+
+// Démarrage du serveur
+startServer().catch(err => {
+    console.error('Erreur critique lors du démarrage du serveur', err);
+    process.exit(1);
 });
