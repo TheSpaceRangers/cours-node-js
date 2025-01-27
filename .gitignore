@@ -8,9 +8,14 @@ gestion-taches/.idea
 gestion-taches-redis-mysql/.idea
 
 twitter/.idea
+twitter/back/.idea
 
+chapitre-01/node_modules
 chapitre-02/node_modules
 chapitre-04/node_modules
 chapitre-05/node_modules
 
+gestion-taches/node_modules
 gestion-taches-redis-mysql/node_modules
+
+twitter/back/node_modules
