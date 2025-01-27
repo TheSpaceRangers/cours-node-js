@@ -6,6 +6,8 @@ const taskRoutes = require('./routes/tasks');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+console.log(`worker pid=${process.pid}`);
+
 // Middleware
 app.use(express.json());
 
@@ -18,6 +20,15 @@ mongoose
 
 // Routes
 app.use('/tasks', taskRoutes);
+
+// Heavy
+app.get("/heavy", (req, res) => {
+    let total = 0;
+    for (let i = 0; i < 5_000_000; i++) {
+        total++;
+    }
+    res.send(`The result of the CPU intensive task is ${total}\n`);
+});
 
 // Démarrer le serveur
 app.listen(PORT, () => {
