@@ -1,21 +1,21 @@
 .idea/
-/chapitre-01/.idea
-/chapitre-02/.idea
-/chapitre-04/.idea
-/chapitre-05/.idea
+/chapitre-01/.idea/
+/chapitre-02/.idea/
+/chapitre-04/.idea/
+/chapitre-05/.idea/
 
-/gestion-taches/.idea
-/gestion-taches-redis-mysql/.idea
+/gestion-taches/.idea/
+/gestion-taches-redis-mysql/.idea/
 
-/twitter/.idea
-/twitter/back/.idea
+/twitter/.idea/
+/twitter/back/.idea/
 
-/chapitre-01/node_modules
-/chapitre-02/node_modules
-/chapitre-04/node_modules
-/chapitre-05/node_modules
+/chapitre-01/node_modules/
+/chapitre-02/node_modules/
+/chapitre-04/node_modules/
+/chapitre-05/node_modules/
 
-/gestion-taches/node_modules
-/gestion-taches-redis-mysql/node_modules
+/gestion-taches/node_modules/
+/gestion-taches-redis-mysql/node_modules/
 
-/twitter/back/node_module
+/twitter/back/node_modules/
