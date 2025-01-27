@@ -29,6 +29,24 @@ class Task {
         });
     }
 
+    getTask(
+        id
+    ) {
+        return new Promise((resolve, reject) => {
+            const sql = `SELECT * FROM tasks WHERE id = ?`;
+
+            this.db.query(sql, [id], (err, results) => {
+                if (err)
+                    return reject(err);
+
+                if (results.length === 0)
+                    return resolve(null);
+
+                resolve(results[0]);
+            });
+        });
+    }
+
     createTask(
         title
     ) {
