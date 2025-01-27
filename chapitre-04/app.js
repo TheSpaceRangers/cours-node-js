@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 // Connexion à la base de données
-const DB_URI = process.env.DB_URI || 'mongodb://admin:password123@192.168.1.101:1000/crud_db?authSource=adminv';
+const DB_URI = process.env.DB_URI || 'mongodb://admin:password123@192.168.1.101:1000/crud_db?authSource=admin';
 mongoose
     .connect(DB_URI)
     .then(() => console.log('Connecté à MongoDB'))
