@@ -31,6 +31,37 @@ exports.getTasks = async (req, res) => {
     }
 };
 
+exports.getTaskById = async (
+    req, res
+) => {
+    try {
+        const { id } = req.params;
+
+        const redis = req.app.get('redis');
+
+        const cacheKey = `task:${id}`;
+        const cachedTask = await redis.get(cacheKey);
+        if (cachedTask)
+            return res.json(JSON.parse(cachedTask));
+
+        const db = req.app.get('db');
+        const Task = require('../models/Task');
+        const task = new Task(db);
+        const findTask = await task.getTask(id);
+        if (!findTask) {
+            return res.status(404).json({ error: 'Tâche non trouvée.' });
+        }
+
+        await redis.set(cacheKey, JSON.stringify(findTask), 'EX', 60 * 5);
+
+        res.json(findTask);
+    } catch (err) {
+        console.error('Erreur lors de la récupération de la tâche :', err);
+        res.status(500).json({ error: 'Erreur lors de la récupération de la tâche.', err });
+    }
+};
+
+
 exports.createTask = async (req, res) => {
     try {
         const { title } = req.body;
@@ -58,7 +89,6 @@ exports.updateTask = async (req, res) => {
         const Task = require('../models/Task');
         const task = new Task(db);
 
-        // Vérifier si la tâche existe
         const findTask = await task.findById(id);
         if (!findTask)
             return res.status(404).json({ error: 'Tâche non trouvée.' });
@@ -90,7 +120,6 @@ exports.deleteTask = async (req, res) => {
         const Task = require('../models/Task');
         const task = new Task(db);
 
-        // Supprimer la tâche dans la base de données
         const findTask = await task.deleteTask(id);
         if (!findTask)
             return res.status(404).json({ error: 'Tâche non trouvée.' });
