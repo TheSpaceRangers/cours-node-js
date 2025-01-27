@@ -3,10 +3,24 @@ class Task {
         this.db = db; // Instance de connexion MySQL
     }
 
-    // Récupérer toutes les tâches
-    getAllTasks() {
+    getTasks(
+        filters = [],
+        limit = 10,
+        offset = 0
+    ) {
         return new Promise((resolve, reject) => {
-            this.db.query('SELECT * FROM tasks ORDER BY created_at DESC', (err, results) => {
+            const whereClause = filters.length ? `WHERE ${filters.map(filter => filter.field).join(' AND ')}` : '';
+            const values = filters.map(filter => filter.value);
+            values.push(parseInt(limit), parseInt(offset));
+
+            const sql = `SELECT * 
+                FROM tasks 
+                ${whereClause}
+                ORDER BY created_at DESC
+                LIMIT ? OFFSET ?
+            `;
+
+            this.db.query(sql, values, (err, results) => {
                 if (err) {
                     return reject(err);
                 }
@@ -15,61 +29,87 @@ class Task {
         });
     }
 
-    // Récupérer une tâche par son ID
-    getTaskById(id) {
+    createTask(
+        title
+    ) {
         return new Promise((resolve, reject) => {
-            this.db.query('SELECT * FROM tasks WHERE id = ?', [id], (err, results) => {
-                if (err) {
+            const sql = `INSERT INTO tasks (title) VALUES (?)`;
+
+            this.db.query(sql, [title], (err, result) => {
+                if (err)
                     return reject(err);
-                }
-                resolve(results[0]); // Retourne la première tâche (car ID unique)
+
+                resolve({
+                    id: result.insertId,
+                    title,
+                    is_completed: false,
+                    created_at: new Date(),
+                });
             });
         });
     }
 
-    // Ajouter une nouvelle tâche
-    createTask(title) {
+    updateTask(
+        id,
+        updates
+    ) {
         return new Promise((resolve, reject) => {
-            this.db.query('INSERT INTO tasks (title) VALUES (?)', [title], (err, result) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve({ id: result.insertId, title, is_completed: false });
+            const fields = [];
+            const values = [];
+
+            Object.keys(updates).forEach((key) => {
+                fields.push(`${key} = ?`);
+                values.push(updates[key]);
             });
-        });
-    }
 
-    // Mettre à jour une tâche (par exemple, la marquer comme terminée)
-    updateTask(id, updates) {
-        const fields = [];
-        const values = [];
+            values.push(id);
 
-        // Construire dynamiquement la requête de mise à jour
-        Object.keys(updates).forEach((key) => {
-            fields.push(`${key} = ?`);
-            values.push(updates[key]);
-        });
-        values.push(id); // ID pour la clause WHERE
-
-        return new Promise((resolve, reject) => {
             const sql = `UPDATE tasks SET ${fields.join(', ')} WHERE id = ?`;
+
             this.db.query(sql, values, (err, result) => {
-                if (err) {
+                if (err)
                     return reject(err);
-                }
-                resolve(result);
+
+                if (result.affectedRows === 0)
+                    return reject(new Error('Tâche non trouvée.'));
+
+                resolve({ id, ...updates });
             });
         });
     }
 
-    // Supprimer une tâche par ID
-    deleteTask(id) {
+    deleteTask(
+        id
+    ) {
         return new Promise((resolve, reject) => {
-            this.db.query('DELETE FROM tasks WHERE id = ?', [id], (err, result) => {
-                if (err) {
+            const sql = `DELETE FROM tasks WHERE id = ?`;
+
+            this.db.query(sql, [id], (err, result) => {
+                if (err)
                     return reject(err);
-                }
-                resolve(result);
+
+                if (result.affectedRows === 0)
+                    return resolve(null);
+
+                resolve({ id });v
+            });
+        });
+    }
+
+    findById(
+        id
+    ) {
+        return new Promise((
+            resolve,
+            reject
+        ) => {
+            const sql = `SELECT * FROM tasks WHERE id = ?`;
+
+            this.db.query(sql, [id], (err, results) => {
+                if (err)
+                    return reject(err);
+
+                resolve(results[0]);
             });
         });
     }
